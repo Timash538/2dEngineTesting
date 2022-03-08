@@ -6,11 +6,19 @@ in vec3 FragPos;
 
 out vec4 FragColor;
 
-//uniform struct Material {
-//sampler2D diffuse;
-//sampler2D specular;
-//float shininess;
-//};
+uniform struct material {
+sampler2D texture_diffuse1;
+sampler2D texture_specular1;
+float shininess;
+} damn;
+
+struct light {
+    vec3 position;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
 
 
 
@@ -40,5 +48,6 @@ if (dot(norm, lightDir) >= 0.0f) {
     specular = specularStrength * spec * lightColor;
 }
     vec3 result = (ambient+ diffuse +specular) * objectColor;
-    FragColor = vec4(result, 1.0);
+    //FragColor = vec4(result, 1.0);
+    FragColor = texture(damn.texture_diffuse1, TexCoord);
 }

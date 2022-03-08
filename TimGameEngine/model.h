@@ -9,12 +9,14 @@ using namespace std;
 
 class Model {
 public:
-	Model(char* path) {
+	Model(string path) {
 		loadModel(path);
 	}
+	Model() {}
 	void Draw(Shader& shader);
 private:
 	vector<Mesh> meshes;
+	vector<Texture> textures_loaded;
 	string directory;
 
 	void loadModel(string path);

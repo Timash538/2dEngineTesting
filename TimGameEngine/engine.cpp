@@ -6,7 +6,7 @@
 #include "glm/gtx/transform.hpp"
 #include "texture.h"
 #include "shader.h"
-#include "mesh.h"
+#include "model.h"
 #include "camera.h"
 #include <ctime>
 
@@ -21,6 +21,7 @@ GLuint cubeVAO, lightVAO;
 GLuint VBO;
 vec3 lightColor(1.0f);
 vec3 objectColor(1.0f, 0.0f, 0.0f);
+Model model;
 
 float vertices[] = {
 	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -82,7 +83,8 @@ Engine::~Engine() {};
 void CreateCubes();
 
 int Engine::Init(int width, int height) {
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+	glutSetOption(GLUT_MULTISAMPLE, 8);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(0,0);
 
@@ -95,8 +97,11 @@ int Engine::Init(int width, int height) {
 		return 1;
 	}
 
+	
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_MULTISAMPLE);
+	glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 
@@ -115,6 +120,8 @@ int Engine::Init(int width, int height) {
 	//shader.setInt("material.diffuse", 0);
 
 	CreateCubes();
+	model = Model(("D:/repos/TimGameEngine/TimGameEngine/obj_Neck_Mech_Walker_by_3DHaupt/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj"));
+
 
 	currentFrame = clock();
 	lastFrame = currentFrame;
@@ -127,15 +134,16 @@ int Engine::Init(int width, int height) {
 
 void RenderSceneCB() {
 
-	currentFrame = clock();
-	deltaTime = currentFrame - lastFrame;
-	lastFrame = currentFrame;
+	//currentFrame = clock();
+	//deltaTime = currentFrame - lastFrame;
+	//lastFrame = currentFrame;
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	shader.use();
+	model.Draw(shader);
 	static float scale = 0.0f;
 	scale += 0.01f;
-	vec3 lightPos(cosf(scale), 0.0f, sinf(scale));
+	vec3 lightPos(cosf(scale)*5.0f, 0.0f, sinf(scale)*5.0f);
 
 	mat4 PersProjTrans = perspectiveFov(1.57f, 1920.0f, 1080.0f, 0.001f, 100.0f);
 	mat4 CameraTrans = cam.GetMatrix();
@@ -144,8 +152,12 @@ void RenderSceneCB() {
 	mat4 WorldTrans;
 
 	//Cube
-	wT.SetPosition(0.0f, 0.0f, 5.0f);
-	wT.SetRotation(scale, 0.0f, 0.0f);
+	wT.SetPosition(0.0f, -5.0f, 5.0f);
+	wT.Rotate(scale, 0.0f, 0.0f);
+	//wT.SetRotation(scale, 0.0f, 0.0f);
+
+	//Cam
+	cam.Update();
 
 	shader.use();
 	shader.setVec3("objectColor", objectColor);
@@ -153,7 +165,7 @@ void RenderSceneCB() {
 	shader.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
 	vec3 camPos = cam.GetPosition();
 	shader.setVec3("viewPos", camPos.x,camPos.y,camPos.z);
-	printf("CAMPOS:\n x: %.2f| y: %.2f| z: %.2f\n", camPos.x, camPos.y, camPos.z);
+	//printf("CAMPOS:\n x: %.2f| y: %.2f| z: %.2f\n", camPos.x, camPos.y, camPos.z);
 	mat4 rotation = wT.GetRotMatrix();
 	mat4 model(1.0f);
 	WorldTrans = wT.GetMatrix();
@@ -166,10 +178,12 @@ void RenderSceneCB() {
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//lightCube
+	wT.SetPosition(0.0f, 0.0f, 5.0f);
+
 	wT.Translate(lightPos);
 	wT.SetRotation(0.0f, 0.0f, 0.0f);
 	wT.SetScale(0.1, 0.1f, 0.1f);
-	printf("POSITION OF CUBE:\n x: %.2f| y: %.2f| z: %.2f\n", wT.pos.x, wT.pos.y, wT.pos.z);
+	//printf("POSITION OF CUBE:\n x: %.2f| y: %.2f| z: %.2f\n", wT.pos.x, wT.pos.y, wT.pos.z);
 
 
 	shader2.use();
@@ -189,7 +203,11 @@ void KeysCB(unsigned char key, int x, int y) {
 	if (key == 27) {
 		glutLeaveMainLoop();
 	}
-	cam.OnKeyboard(key, 0.01f*deltaTime);
+	cam.OnKeyboard(key);
+}
+
+void KeysUpCB(unsigned char key, int x, int y) {
+	cam.OnKeyboardUp(key);
 }
 
 void PassiveMouseCB(int x, int y) {
@@ -204,6 +222,7 @@ void PassiveMouseCB(int x, int y) {
 void Engine::RegisterCallbacks() {
 	glutDisplayFunc(RenderSceneCB);
 	glutKeyboardFunc(KeysCB);
+	glutKeyboardUpFunc(KeysUpCB);
 	glutPassiveMotionFunc(PassiveMouseCB);
 }
 

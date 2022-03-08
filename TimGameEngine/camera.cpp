@@ -7,18 +7,28 @@ mat4 Camera::GetMatrix() {
 	return cameraTransform;
 }
 
-void Camera::OnKeyboard(unsigned char key, float camSpeed) {
+void Camera::OnKeyboard(unsigned char key) {
+	float scale = 0.4f;
 	if (key == 'w') {
-		m_pos += camSpeed * direction;
+		speed.z = scale;
 	}
 	if (key == 's') {
-		m_pos -= camSpeed * direction;
+		speed.z = -scale;
 	}
 	if (key == 'a') {
-		m_pos -= camSpeed * normalize(cross(direction,vec3(0.0f,1.0f,0.0f)));
+		speed.x = -scale;
 	}
 	if (key == 'd') {
-		m_pos += camSpeed * normalize(cross(direction, vec3(0.0f, 1.0f, 0.0f)));
+		speed.x = scale;
+	}
+}
+
+void Camera::OnKeyboardUp(unsigned char key) {
+	if (key == 'w' || key == 's') {
+		speed.z = 0.0f;
+	}
+	if (key == 'a' || key == 'd') {
+		speed.x = 0.0f;
 	}
 }
 
@@ -44,4 +54,19 @@ void Camera::Translate(float x, float y, float z) {
 
 vec3 Camera::GetPosition() {
 	return m_pos;
+}
+
+void Camera::SetPosition(vec3 s) {}
+
+vec3 Camera::GetSpeed() {
+	return speed;
+}
+
+void Camera::SetSpeed(vec3 speedN) {
+	speed = speedN;
+}
+
+void Camera::Update() {
+		m_pos += speed.z * direction;
+		m_pos += speed.x * normalize(cross(direction, vec3(0.0f, 1.0f, 0.0f)));	
 }

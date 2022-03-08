@@ -3,7 +3,6 @@
 #include "glm/vec3.hpp"
 #include "glm/vec2.hpp"
 #include "shader.h"
-#include "texture.h"
 
 #include <vector>
 
@@ -14,6 +13,12 @@ struct Vertex {
 	vec3 Position;
 	vec3 Normal;
 	vec2 TexCoords;
+};
+
+struct Texture {
+	unsigned int id;
+	string type;
+	string path;
 };
 
 class Mesh {
