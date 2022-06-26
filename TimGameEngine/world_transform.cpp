@@ -25,9 +25,9 @@ void WorldTransform::Translate(float x, float y, float z) {
 }
 
 void WorldTransform::Translate(vec3 _pos) {
-	pos.x += _pos.x;
-	pos.y += _pos.y;
-	pos.z += _pos.z;
+	pos.x = pos.x + _pos.x;
+	pos.y = pos.y + _pos.y;
+	pos.z = pos.z + _pos.z;
 }
 
 void WorldTransform::Rotate(float x, float y, float z) {
@@ -46,6 +46,12 @@ void WorldTransform::SetPosition(float x, float y, float z) {
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
+}
+
+void WorldTransform::SetPosition(glm::vec3 v) {
+	pos.x = v.x;
+	pos.y = v.y;
+	pos.z = v.z;
 }
 
 void WorldTransform::SetRotation(float x, float y, float z) {

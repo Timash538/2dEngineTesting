@@ -8,11 +8,13 @@
 #include "shader.h"
 #include "model.h"
 #include "camera.h"
+#include "agent.h"
 #include <ctime>
 
 #include "world_transform.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 
 using namespace glm;
 
@@ -21,52 +23,52 @@ GLuint cubeVAO, lightVAO;
 GLuint VBO;
 vec3 lightColor(1.0f);
 vec3 objectColor(1.0f, 0.0f, 0.0f);
-Model model;
+vector<Agent> agents;
 
-float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-};
+//float vertices[] = {
+//	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//	 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//	 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//	-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+//
+//	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//	 0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//	 0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//	-0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//	-0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+//
+//	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//	-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//	-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+//	-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//	-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+//
+//
+//	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//	 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//	 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+//	 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//	 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+//
+//	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//	 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//	 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//	-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+//	-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+//
+//	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+//	 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+//	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//	 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//	-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+//	-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+//};
 
 Camera cam;
 float currentFrame, lastFrame, deltaTime;
@@ -108,20 +110,19 @@ int Engine::Init(int width, int height) {
 	shader = Shader("shader.vs", "shader.fs");
 	shader2 = Shader("shader.vs", "light.fs");
 
-	//const std::string kek = "kek.jpg";
-	//Texture texture(kek);
-	//glBindTexture(GL_TEXTURE_2D, texture.getTexture());
-
-	//glActiveTexture(GL_TEXTURE1);
-	//const std::string kek1 = "kek1.jpg";
-	//Texture texture2(kek1);
-	//glBindTexture(GL_TEXTURE_2D, texture2.getTexture());
-
-	//shader.setInt("material.diffuse", 0);
-
-	CreateCubes();
-	model = Model(("D:/repos/TimGameEngine/TimGameEngine/obj_Neck_Mech_Walker_by_3DHaupt/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj"));
-
+	//CreateCubes();
+	string path = "D:/repos/TimGameEngine/TimGameEngine/obj_Neck_Mech_Walker_by_3DHaupt/Neck_Mech_Walker_by_3DHaupt-(Wavefront OBJ).obj";
+	string path2 = "C:/Users/Timash/Desktop/99d2906d822406ddb52a099cdc3d08b5/Gato.obj";
+	agents.push_back(Agent(path2));
+	agents.push_back(Agent(path));
+	agents.push_back(Agent(path));
+	//agents[0].GetWT().SetScale(0.25f, 0.25f, 0.25f);
+	agents.at(1).GetWT().SetPosition(2.0f, 1.0f, 3.0f);
+	agents.at(2).GetWT().SetPosition(8.0f, -5.0f, 3.0f);
+	agents.at(1).GetWT().SetRotation(2.0f, 1.0f, 3.0f);
+	agents.at(2).GetWT().SetRotation(8.0f, -5.0f, 3.0f);
+	//agents.at(1).SetSpeed(vec3(1.0f,0.0f,0.0f));
+	
 
 	currentFrame = clock();
 	lastFrame = currentFrame;
@@ -133,31 +134,29 @@ int Engine::Init(int width, int height) {
 }
 
 void RenderSceneCB() {
-
-	//currentFrame = clock();
-	//deltaTime = currentFrame - lastFrame;
-	//lastFrame = currentFrame;
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	shader.use();
-	model.Draw(shader);
-	static float scale = 0.0f;
-	scale += 0.01f;
-	vec3 lightPos(cosf(scale)*5.0f, 0.0f, sinf(scale)*5.0f);
-
 	mat4 PersProjTrans = perspectiveFov(1.57f, 1920.0f, 1080.0f, 0.001f, 100.0f);
 	mat4 CameraTrans = cam.GetMatrix();
 	mat4 WVP;
 	WorldTransform wT;
 	mat4 WorldTrans;
-
-	//Cube
-	wT.SetPosition(0.0f, -5.0f, 5.0f);
-	wT.Rotate(scale, 0.0f, 0.0f);
-	//wT.SetRotation(scale, 0.0f, 0.0f);
-
-	//Cam
+	Agent& agent = agents.at(0);
+	agent.GetWT().SetPosition(cam.GetPosition() + cam.direction + vec3(0.0f,-1.0f,0.0f));
 	cam.Update();
+	shader.use();
+	
+	for (unsigned int i = 0; i < agents.size(); i++) {
+		agents.at(i).Update();
+		WVP = PersProjTrans * CameraTrans * agents.at(i).GetWT().GetMatrix();
+		agents.at(i).Draw(shader, WVP);
+	}
+
+	
+	static float scale = 0.0f;
+	scale += 0.01f;
+	vec3 lightPos(cosf(scale)*5.0f, 0.0f, sinf(scale)*5.0f);
+	
 
 	shader.use();
 	shader.setVec3("objectColor", objectColor);
@@ -165,7 +164,6 @@ void RenderSceneCB() {
 	shader.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
 	vec3 camPos = cam.GetPosition();
 	shader.setVec3("viewPos", camPos.x,camPos.y,camPos.z);
-	//printf("CAMPOS:\n x: %.2f| y: %.2f| z: %.2f\n", camPos.x, camPos.y, camPos.z);
 	mat4 rotation = wT.GetRotMatrix();
 	mat4 model(1.0f);
 	WorldTrans = wT.GetMatrix();
@@ -183,8 +181,6 @@ void RenderSceneCB() {
 	wT.Translate(lightPos);
 	wT.SetRotation(0.0f, 0.0f, 0.0f);
 	wT.SetScale(0.1, 0.1f, 0.1f);
-	//printf("POSITION OF CUBE:\n x: %.2f| y: %.2f| z: %.2f\n", wT.pos.x, wT.pos.y, wT.pos.z);
-
 
 	shader2.use();
 	WorldTrans = wT.GetMatrix();
@@ -215,6 +211,7 @@ void PassiveMouseCB(int x, int y) {
 		mX = 1200 / 2 - x;
 		mY = 720 / 2 - y;
 		cam.OnMouse(mX, mY);
+		agents[0].OnMouse(mX,mY);
 		glutWarpPointer(1200 / 2, 720 / 2);
 	}
 }
@@ -248,24 +245,24 @@ void Engine::Start() {
 	glutMainLoop();
 }
 
-void CreateCubes() {
-	
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
-	glGenVertexArrays(1, &cubeVAO);
-	glBindVertexArray(cubeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6,(void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(sizeof(float) * 3));
-
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
-}
+//void CreateCubes() {
+//	
+//	glGenBuffers(1, &VBO);
+//	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+//
+//
+//	//glGenVertexArrays(1, &cubeVAO);
+//	//glBindVertexArray(cubeVAO);
+//	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	//glEnableVertexAttribArray(0);
+//	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*6,(void*)0);
+//	//glEnableVertexAttribArray(1);
+//	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)(sizeof(float) * 3));
+//
+//	glGenVertexArrays(1, &lightVAO);
+//	glBindVertexArray(lightVAO);
+//	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+//	glEnableVertexAttribArray(0);
+//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, (void*)0);
+//}

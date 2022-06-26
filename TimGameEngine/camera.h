@@ -11,16 +11,20 @@ public:
 	void OnKeyboardUp(unsigned char key);
 	void OnMouse(int x, int y);
 	vec3 GetPosition();
+	vec3 GetRotation();
 	vec3 GetSpeed();
 	void SetSpeed(vec3 speed);
 	void SetPosition(vec3 position);
+	void SetRotation(vec3 position);
 	void Update();
+	float pitch, yaw = 90.0f, roll;
+	vec3 direction = vec3(0.0f, 0.0f, 1.0f);
 private:
 	void Rotate();
 	void Translate(float x, float y, float z);
 
 	vec3 m_pos = vec3(0.0f,0.0f,0.0f);
 	vec3 speed = vec3(0.0f, 0.0f, 0.0f);
-	vec3 direction = vec3(0.0f,0.0f,1.0f);
-	float pitch, yaw=90.0f, roll;
+	
+	
 };

@@ -56,7 +56,16 @@ vec3 Camera::GetPosition() {
 	return m_pos;
 }
 
+vec3 Camera::GetRotation() {
+	return direction;
+}
+
 void Camera::SetPosition(vec3 s) {}
+
+void Camera::SetRotation(vec3 s) {
+	vec3 sNorm = normalize(s);
+	direction = sNorm;
+}
 
 vec3 Camera::GetSpeed() {
 	return speed;

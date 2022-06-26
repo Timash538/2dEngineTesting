@@ -23,6 +23,7 @@ struct WorldTransform {
 	void Translate(vec3 _pos);
 	void Scale(float x, float y, float z);
 	void SetPosition(float x, float y, float z);
+	void SetPosition(glm::vec3 v);
 	void SetRotation(float x, float y, float z);
 	void SetScale(float x, float y, float z);
 	mat4 GetRotMatrix();
