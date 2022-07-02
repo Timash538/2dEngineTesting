@@ -167,7 +167,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>./lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;assimp-vc143-mt.lib;glew32.lib;freeglut.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;glew32.lib;freeglut.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='qt|x64'">
@@ -202,37 +202,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="agent.cpp" />
-    <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mesh.cpp" />
-    <ClCompile Include="model.cpp" />
-    <ClCompile Include="server.cpp" />
     <ClCompile Include="shader.cpp" />
-    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="tim_utils.cpp" />
     <ClCompile Include="visual_engine.cpp" />
-    <ClCompile Include="world_transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="engine.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="client.h" />
     <ClInclude Include="include\glut_backend.h" />
-    <ClInclude Include="MainWindow.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="model.h" />
     <ClInclude Include="agent.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="server.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="tim_utils.h" />
-    <ClInclude Include="ui_untitled.h" />
     <ClInclude Include="visual_engine.h" />
-    <ClInclude Include="world_transform.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="light.fs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
   </ItemGroup>

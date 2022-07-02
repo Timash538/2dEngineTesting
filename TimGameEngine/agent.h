@@ -1,45 +1,70 @@
 #pragma once
-#include "model.h"
-#include "tim_utils.h"
-#include "world_transform.h"
+
+#include "glm/vec2.hpp"
+#include "glut.h"
+#include "glew.h"
+#include "shader.h"
 
 class Agent {
 private:
-	Model model;
-	vec3 speed = vec3(0.0f);
-	vec3 acceleration = vec3(0.0f);
-	WorldTransform wT;
+	glm::vec3 position;
+	glm::vec3 velocity = vec3(0.0f,0.0f,0.0f);
+	glm::vec3 acceleration;
+	glm::vec3 vertices[1];
+	int num_vertices;
+	GLuint VAO;
+	GLuint VBO;
 public:
-	Agent(string path) {
-		model = Model(path);
-	}
-	void Draw(Shader shader, mat4 wvp) {
-		shader.setMat4("WVP", wvp);
-		model.Draw(shader);
-	}
-	void SetSpeed(vec3 vec) {
-		speed = vec;
-	};
-	void SetAcceleration(vec3 acc) {
-		acceleration = acc;
-	};
-	WorldTransform& GetWT() {
-		return wT;
+	Agent(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration) {
+
+		this->position = position;
+		vertices[0] = vec3(0.0f, 0.0f, 0.0f);
+		glGenVertexArrays(1, &VAO);
+		glBindVertexArray(VAO);
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 
-	void OnMouse(int x, int y) {
-		
-		//wT.rot.x += toRadian(y * -0.1f);
-		wT.rot.y -= toRadian(x * -0.1f);
-		if (wT.rot.x > toRadian(89.9f))
-			wT.rot.x = toRadian(89.9f);
-		if (wT.rot.x < toRadian(-89.9f))
-			wT.rot.x = toRadian(-89.9f);
+	Agent() {}
+
+	vec3 getVelocity() {
+		return vec3(velocity);
+	}
+	
+	void setVelocity(vec3 newVelo) {
+		velocity = newVelo;
+	}
+
+	vec3 getPosition() {
+		return position;
+	}
+
+	void setPosition(vec3 newPos) {
+		position = newPos;
+	}
+
+	void setAcceleration(vec3 newAcc) {
+		acceleration = vec3(newAcc.x/1000.0f,newAcc.y/1000.0f,0.0f);
 	}
 
 	void Update() {
-		wT.Translate(speed);
-		speed += acceleration;
+		setVelocity(velocity + acceleration);
+		setPosition(position + velocity);
 	}
 
+	void Draw(Shader shader) {
+		
+		shader.use();
+		shader.setVec3("Pos", position);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_POINTS, 0, 1);
+		glBindVertexArray(0);
+	}
 };

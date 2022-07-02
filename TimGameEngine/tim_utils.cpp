@@ -22,11 +22,3 @@ bool ReadFile(const char* FileName, string& outFile) {
 	}
 	return ret;
 }
-
-mat4 InitRotationTransform(glm::vec3 rot) {
-	mat4 rotationX, rotationY, rotationZ;
-	rotationX = rotate(rot.x, vec3(1.0f, 0.0f, 0.0f));
-	rotationY = rotate(rot.y, vec3(0.0f, 1.0f, 0.0f));
-	rotationZ = rotate(rot.z, vec3(0.0f, 0.0f, 1.0f));
-	return rotationX * rotationY * rotationZ;
-}

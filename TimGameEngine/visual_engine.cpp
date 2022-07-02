@@ -5,13 +5,11 @@
 #include "tim_utils.h"
 #include "glm/vec3.hpp"
 #include <ctime>
-#include "object.h"
+#include "agent.h"
 #include "shader.h"
 #include <stdio.h>
 #include <iostream>
 #include <string>
-
-#include "world_transform.h"
 
 
 const float HI = 1.0f;
