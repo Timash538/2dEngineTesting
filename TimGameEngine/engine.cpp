@@ -82,7 +82,7 @@ Engine::Engine(int argc, char* argv[]) {
 
 Engine::~Engine() {};
 
-void CreateCubes();
+//void CreateCubes();
 
 int Engine::Init(int width, int height) {
 	glutSetOption(GLUT_MULTISAMPLE, 8);
@@ -133,67 +133,67 @@ int Engine::Init(int width, int height) {
 
 }
 
-void RenderSceneCB() {
-	
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	mat4 PersProjTrans = perspectiveFov(1.57f, 1920.0f, 1080.0f, 0.001f, 100.0f);
-	mat4 CameraTrans = cam.GetMatrix();
-	mat4 WVP;
-	WorldTransform wT;
-	mat4 WorldTrans;
-	Agent& agent = agents.at(0);
-	agent.GetWT().SetPosition(cam.GetPosition() + cam.direction + vec3(0.0f,-1.0f,0.0f));
-	cam.Update();
-	shader.use();
-	
-	for (unsigned int i = 0; i < agents.size(); i++) {
-		agents.at(i).Update();
-		WVP = PersProjTrans * CameraTrans * agents.at(i).GetWT().GetMatrix();
-		agents.at(i).Draw(shader, WVP);
-	}
-
-	
-	static float scale = 0.0f;
-	scale += 0.01f;
-	vec3 lightPos(cosf(scale)*5.0f, 0.0f, sinf(scale)*5.0f);
-	
-
-	shader.use();
-	shader.setVec3("objectColor", objectColor);
-	shader.setVec3("lightColor", lightColor);
-	shader.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
-	vec3 camPos = cam.GetPosition();
-	shader.setVec3("viewPos", camPos.x,camPos.y,camPos.z);
-	mat4 rotation = wT.GetRotMatrix();
-	mat4 model(1.0f);
-	WorldTrans = wT.GetMatrix();
-	WVP = PersProjTrans * CameraTrans * WorldTrans;
-	shader.setMat4("rotation", rotation);
-	shader.setMat4("model", model);
-	shader.setMat4("WVP", WVP);
-
-	glBindVertexArray(cubeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	//lightCube
-	wT.SetPosition(0.0f, 0.0f, 5.0f);
-
-	wT.Translate(lightPos);
-	wT.SetRotation(0.0f, 0.0f, 0.0f);
-	wT.SetScale(0.1, 0.1f, 0.1f);
-
-	shader2.use();
-	WorldTrans = wT.GetMatrix();
-	WVP = PersProjTrans * CameraTrans * WorldTrans;
-
-	shader2.setMat4("WVP", WVP);
-
-	glBindVertexArray(lightVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-	glutPostRedisplay();
-	glutSwapBuffers();
-}
+//void RenderSceneCB() {
+//	
+//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//	mat4 PersProjTrans = perspectiveFov(1.57f, 1920.0f, 1080.0f, 0.001f, 100.0f);
+//	mat4 CameraTrans = cam.GetMatrix();
+//	mat4 WVP;
+//	WorldTransform wT;
+//	mat4 WorldTrans;
+//	Agent& agent = agents.at(0);
+//	agent.GetWT().SetPosition(cam.GetPosition() + cam.direction + vec3(0.0f,-1.0f,0.0f));
+//	cam.Update();
+//	shader.use();
+//	
+//	for (unsigned int i = 0; i < agents.size(); i++) {
+//		agents.at(i).Update();
+//		WVP = PersProjTrans * CameraTrans * agents.at(i).GetWT().GetMatrix();
+//		agents.at(i).Draw(shader, WVP);
+//	}
+//
+//	
+//	static float scale = 0.0f;
+//	scale += 0.01f;
+//	vec3 lightPos(cosf(scale)*5.0f, 0.0f, sinf(scale)*5.0f);
+//	
+//
+//	shader.use();
+//	shader.setVec3("objectColor", objectColor);
+//	shader.setVec3("lightColor", lightColor);
+//	shader.setVec3("lightPos", lightPos.x,lightPos.y,lightPos.z);
+//	vec3 camPos = cam.GetPosition();
+//	shader.setVec3("viewPos", camPos.x,camPos.y,camPos.z);
+//	mat4 rotation = wT.GetRotMatrix();
+//	mat4 model(1.0f);
+//	WorldTrans = wT.GetMatrix();
+//	WVP = PersProjTrans * CameraTrans * WorldTrans;
+//	shader.setMat4("rotation", rotation);
+//	shader.setMat4("model", model);
+//	shader.setMat4("WVP", WVP);
+//
+//	glBindVertexArray(cubeVAO);
+//	glDrawArrays(GL_TRIANGLES, 0, 36);
+//
+//	//lightCube
+//	wT.SetPosition(0.0f, 0.0f, 5.0f);
+//
+//	wT.Translate(lightPos);
+//	wT.SetRotation(0.0f, 0.0f, 0.0f);
+//	wT.SetScale(0.1, 0.1f, 0.1f);
+//
+//	shader2.use();
+//	WorldTrans = wT.GetMatrix();
+//	WVP = PersProjTrans * CameraTrans * WorldTrans;
+//
+//	shader2.setMat4("WVP", WVP);
+//
+//	glBindVertexArray(lightVAO);
+//	glDrawArrays(GL_TRIANGLES, 0, 36);
+//
+//	glutPostRedisplay();
+//	glutSwapBuffers();
+//}
 
 void KeysCB(unsigned char key, int x, int y) {
 	if (key == 27) {
@@ -216,12 +216,12 @@ void PassiveMouseCB(int x, int y) {
 	}
 }
 
-void Engine::RegisterCallbacks() {
-	glutDisplayFunc(RenderSceneCB);
-	glutKeyboardFunc(KeysCB);
-	glutKeyboardUpFunc(KeysUpCB);
-	glutPassiveMotionFunc(PassiveMouseCB);
-}
+//void Engine::RegisterCallbacks() {
+//	glutDisplayFunc(RenderSceneCB);
+//	glutKeyboardFunc(KeysCB);
+//	glutKeyboardUpFunc(KeysUpCB);
+//	glutPassiveMotionFunc(PassiveMouseCB);
+//}
 
 void Engine::Start() {
 

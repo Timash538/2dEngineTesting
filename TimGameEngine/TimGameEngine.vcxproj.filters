@@ -18,9 +18,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="engine.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="world_transform.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -46,6 +43,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="server.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="visual_engine.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,6 +89,12 @@
     <ClInclude Include="MainWindow.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="visual_engine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader.vs">
@@ -98,9 +104,6 @@
       <Filter>Исходные файлы</Filter>
     </None>
     <None Include="light.fs">
-      <Filter>Исходные файлы</Filter>
-    </None>
-    <None Include="untitled.ui">
       <Filter>Исходные файлы</Filter>
     </None>
   </ItemGroup>
