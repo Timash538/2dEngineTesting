@@ -108,6 +108,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\..\release\$(Platform)\$(Configuration)</OutDir>
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalDebugSymbols>false</CopyLocalDebugSymbols>
+    <CopyLocalProjectReference>false</CopyLocalProjectReference>
+    <CopyLocalDeploymentContent>false</CopyLocalDeploymentContent>
+    <CustomBuildAfterTargets />
+    <IntDir>..\..\temp\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='qt|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -169,6 +176,13 @@
       <AdditionalLibraryDirectories>./lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>ws2_32.lib;glew32.lib;freeglut.lib;freeglutd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>copy $(ProjectDir)\DLL $(OutDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='qt|x64'">
     <ClCompile>
@@ -202,7 +216,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="agent.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="scene.h" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="tim_utils.cpp" />
     <ClCompile Include="visual_engine.cpp" />

@@ -1,10 +1,12 @@
 #version 330 core
 
 in vec3 FragPos;
-uniform vec3 Postix;
+uniform vec3 Pos;
+uniform vec3 Color;
+uniform vec3 SelfColor;
 
 out vec4 FragColor;
 
 void main() {
-    gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+    FragColor = vec4(SelfColor*Color,1.0f);
 }

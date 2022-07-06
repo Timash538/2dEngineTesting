@@ -76,6 +76,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	}
 
 	// delete the shaders as they're linked into our program now and no longer necessary
+	glDetachShader(ID, vertex);
+	glDetachShader(ID, fragment);
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }
@@ -103,9 +105,9 @@ void Shader::setVec3(const std::string& name, float value1, float value2, float 
 	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, &vecs[0]);
 }
 
-void Shader::setVec3(const std::string& name, vec3 vec) const {
+void Shader::setVec3(const std::string& name,const vec3& vec) const {
 	float vecs[3] = { vec.x,vec.y,vec.z };
-	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1,&vec[0]);
+	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1,&vecs[0]);
 }
 
 void Shader::setMat4(const std::string& name, const glm::mat4& mat) const

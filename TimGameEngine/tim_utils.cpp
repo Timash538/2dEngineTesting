@@ -22,3 +22,9 @@ bool ReadFile(const char* FileName, string& outFile) {
 	}
 	return ret;
 }
+
+float RandomFloat(float min, float max)
+{
+	float r = (float)rand() / (float)RAND_MAX;
+	return min + r * (max - min);
+}
