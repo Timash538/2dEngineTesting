@@ -4,6 +4,8 @@
 void Agent::Draw(Shader shader, vec2 resolution,vec2 scene, vec2 cam) {
 	shader.use();
 	shader.setVec3("Pos", position);
+	shader.setVec3("bColor", vec3(0.3f, 0.3f, 1.0f));
+	shader.setFloat("Size", size);
 	shader.setVec3("scene", vec3(scene.x,scene.y,0.0f));
 	shader.setVec3("res", vec3(resolution.x,resolution.y,0.0f));
 	shader.setVec3("cam", vec3(cam.x,cam.y,0.0f));
@@ -11,14 +13,20 @@ void Agent::Draw(Shader shader, vec2 resolution,vec2 scene, vec2 cam) {
 	shader.setVec3("SelfColor", color);
 	//std::cout << velocity.x << std::endl;
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_POINTS, 0, 1);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }
 
-Agent::Agent(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration) {
-	color = vec3(0.5f);//vec3(RandomFloat(0.0f,1.0f), RandomFloat(0.0f, 1.0f), RandomFloat(0.0f, 1.0f));
+Agent::Agent(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration, float size) {
+	color = vec3(RandomFloat(0.0f,1.0f), RandomFloat(0.0f, 1.0f), RandomFloat(0.0f, 1.0f));
 	this->position = position;
-	vertices[0] = vec3(0.0f, 0.0f, 0.0f);
+	this->velocity = velocity;
+	this->acceleration = acceleration;
+	this->size = size;
+	vertices[0] = vec3(-1.0f, -1.0f, 0.0f);
+	vertices[1] = vec3(-1.0f, 1.0f, 0.0f);
+	vertices[2] = vec3(1.0f, 1.0f, 0.0f);
+	vertices[3] = vec3(1.0f, -1.0f, 0.0f);
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
@@ -29,6 +37,12 @@ Agent::Agent(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration) {
 	glEnableVertexAttribArray(0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
 }
 
@@ -39,4 +53,12 @@ void Agent::Update() {
 
 void Agent::setAcceleration(vec3 newAcc) {
 	acceleration = vec3(newAcc.x/100.0f, newAcc.y/100.0f, 0.0f);
+}
+
+void Agent::setSize(float nSize) {
+	size = nSize;
+}
+
+float Agent::getSize() {
+	return size;
 }
