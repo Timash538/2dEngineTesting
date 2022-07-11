@@ -29,29 +29,30 @@ public:
 		return vec3(velocity);
 	}
 	
-	void setVelocity(vec3 newVelo) {
-		velocity = newVelo;
-	}
+	void setVelocity(vec3 newVelo, float ts);
+	void setVelocity(vec3 newVelo);
 
 	vec3 getPosition() {
 		return position;
 	}
 
-	void setPosition(vec3 newPos) {
-		position = newPos;
-	}
+	void setPosition(vec3 newPos, float ts);
+	void setPosition(vec3 newPos);
 
 	float getSize();
 
 	void setSize(float nSize);
 
 	void setAcceleration(vec3 newAcc);
+	void setAcceleration(vec3 newAcc,float ts);
 
 	vec3 getAcceleration() {
 		return acceleration;
 	}
 
 	void Update();
+
+	void Update(float ts);
 
 	void Draw(Shader shader, vec2 res, vec2 scene, vec2 cam);
 

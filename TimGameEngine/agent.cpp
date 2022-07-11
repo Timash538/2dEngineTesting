@@ -46,14 +46,36 @@ Agent::Agent(glm::vec3 position, glm::vec3 velocity, glm::vec3 acceleration, flo
 	glBindVertexArray(0);
 }
 
-void Agent::Update() {
-	setVelocity(velocity + acceleration);
-	setPosition(position + velocity);
+void Agent::Update(float ts) {
+	setVelocity(velocity + acceleration*ts);
+	setPosition(position + velocity*ts+acceleration*ts*ts);
 }
 
 void Agent::setAcceleration(vec3 newAcc) {
-	acceleration = vec3(newAcc.x/100.0f, newAcc.y/100.0f, 0.0f);
+	acceleration = newAcc;
 }
+
+void Agent::setAcceleration(vec3 newAcc, float ts) {
+	acceleration = newAcc * ts;
+}
+
+void Agent::setPosition(vec3 newPos, float ts) {
+	position = newPos * ts;
+}
+
+void Agent::setPosition(vec3 newPos) {
+	position = newPos;
+}
+
+
+void Agent::setVelocity(vec3 newVelo) {
+	velocity = newVelo;
+}
+
+void Agent::setVelocity(vec3 newVelo, float ts) {
+	velocity = newVelo * ts;
+}
+
 
 void Agent::setSize(float nSize) {
 	size = nSize;
