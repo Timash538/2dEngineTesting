@@ -9,4 +9,6 @@ struct Scene {
 	vec2 space;
 	vec2 resolution;
 	vec3 mousePos = vec3(0.0f);
+	float aspectRatio;
+	vec3 cam;
 };

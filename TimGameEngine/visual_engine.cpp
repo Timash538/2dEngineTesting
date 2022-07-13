@@ -15,29 +15,85 @@
 #include <thread>
 #include <chrono>
 
+#define GLUT_ROLL_FORWARD 3
+#define GLUT_ROLL_BACKWARD 4
+#define pointInSpace(res,space) vec3((x/res.x-0.5f)*space.x, ( - y / res.y+0.5f)*space.y,0.0f)
 
 clock_t c = clock();
 
 Scene scene;
-bool prsd = false;
-bool mdlprsd = false;
-bool flag = true;
-bool flagTime = false;
+bool rightButtonPressed = false;
+bool middleButtonPressed = false;
+bool isSimulationRunning = true;
 vec3 massCenter = vec3(0.0f);
-float aspectRatio = 800.0f/800.0f;
-vec3 center = vec3(0.0f);
-vec3 center1 = vec3(0.0f);
-vec3 center2 = vec3(0.0f);
-vec3 cam = vec3(0.0f);
 Shader shader;
 auto lastUpdate = std::chrono::system_clock::now();
-std::chrono::duration<double>  ts;
-std::chrono::duration<double> t;
+std::chrono::duration<double>  timeStamp;
 
 VisualEngine::VisualEngine(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 }
 
+void CreatePoints(int count);
+
+int VisualEngine::Init(int width, int height) {
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
+	glutInitWindowSize(width, height);
+	glutInitWindowPosition(0, 0);
+
+	int window = glutCreateWindow("Space simulation v0.1");
+
+	GLenum res = glewInit();
+	if (res != GLEW_OK)
+	{
+		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+		return 1;
+	}
+	glEnable(GL_BLEND);
+
+	glClearColor(0.3f, 0.3f, 1.0f, 1.0f);
+
+	srand(std::time(0));
+
+	scene = Scene();
+	scene.resolution.x = width;
+	scene.resolution.y = height;
+	scene.aspectRatio = width / height;
+	scene.space = vec2(2000, 2000);
+	shader = Shader("shader.vs", "shader.fs");
+	CreatePoints(50);
+
+	lastUpdate = std::chrono::system_clock::now();
+}
+
+void VisualEngine::Start() {
+	glutMainLoop();
+}
+
+// Callbacks Declaration
+void RenderSceneCB();
+void ReshapeCB(int x, int y);
+void Idle();
+void MousePassiveMotionCB(int x, int y);
+void MouseButtonPressedCB(int b, int s, int x, int y);
+void MousePressedMotionCB(int x, int y);
+void KeyCB(unsigned char ch, int x, int y);
+
+void VisualEngine::RegisterCallbacks() {
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glutIdleFunc(glutPostRedisplay);
+	glutDisplayFunc(RenderSceneCB);
+	glutPassiveMotionFunc(MousePassiveMotionCB);
+	glutMotionFunc(MousePressedMotionCB);
+	glutMouseFunc(MouseButtonPressedCB);
+	glutIdleFunc(Idle);
+	glutReshapeFunc(ReshapeCB);
+	glutKeyboardFunc(KeyCB);
+}
+
+/////////////////////////////Auxiliary Functions///////////////////
+
+// Bad collision detection
 void doCollisionDetection(int i) {
 	Agent* a = &scene.agents[i];
 	vec3 aPos = a->getPosition();
@@ -53,8 +109,7 @@ void doCollisionDetection(int i) {
 			float y2 = bPos.y;
 
 			float d = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
-			if (d < b->getSize()+ a->getSize()) {
-				//std::cout << d << std::endl;
+			if (d < b->getSize() + a->getSize()) {
 				a->setVelocity(a->getVelocity() + (aPos - scene.agents[j].getPosition()) * std::max(b->getSize() - a->getSize(), 5.0f) / 10.0f);
 				b->setVelocity(b->getVelocity() + (bPos - scene.agents[i].getPosition()) * std::max(a->getSize() - b->getSize(), 5.0f) / 10.0f);
 			}
@@ -62,202 +117,127 @@ void doCollisionDetection(int i) {
 	}
 }
 
-void createPoints(int howMuch) {
-	vec3 spd = vec3(0.0f, 0.0f, 0.0f);
-	for (int i = 0; i < howMuch; i++) {
+void CreatePoints(int count) {
+
+	for (int i = 0; i < count; i++) {
+
 		float x = RandomFloat(-1000.0f, 1000.0f);
 		float y = RandomFloat(-1000.0f, 1000.0f);
-		float s = RandomFloat(1.0f, 100.0f);
+		float size = RandomFloat(1.0f, 100.0f);
+
 		vec3 randPos = vec3(x, y, 0.0f);
-		scene.agents.push_back(Agent(randPos, vec3(0.0f), vec3(0.0f), s));
+
+		scene.agents.push_back(Agent(randPos, vec3(0.0f), vec3(0.0f), size));
 	}
 }
 
-int VisualEngine::Init(int width, int height) {
-	//glutSetOption(GLUT_MULTISAMPLE, 8);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
-	glutInitWindowSize(width, height);
-	glutInitWindowPosition(0, 0);
 
-	int window = glutCreateWindow("kek");
-
-	GLenum res = glewInit();
-	if (res != GLEW_OK)
-	{
-		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
-		return 1;
-	}
-	glEnable(GL_BLEND);
-	
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_MULTISAMPLE);
-	glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
-	glCullFace(GL_BACK);
-	glFrontFace(GL_CW);
-
-	//glutSetCursor(GLUT_CURSOR_NONE);
-	//glutFullScreen();
-	glClearColor(0.3f, 0.3f, 1.0f, 1.0f);
-
-	srand(std::time(0));
-
-	scene = Scene();
-	scene.resolution.x = width;
-	scene.resolution.y = height;
-	scene.space = vec2(2000, 2000);
-	shader = Shader("shader.vs", "shader.fs");
-	createPoints(30);
-	scene.agents[0].setPosition(vec3(-1000.0f, 0.0f, 0.0f));
-	//cout << (float)(lastUpdate-std::chrono::system_clock::now()) << "s for Init" << endl;
-	lastUpdate = std::chrono::system_clock::now();
-}
-
-
-
-void VisualEngine::Start() {
-	glutMainLoop();
-}
-
-void RenderSceneCB();
-void Idle();
-void MouseCB(int x, int y);
-void MouseCB1(int b, int s, int x, int y);
-void MouseCB2(int x, int y);
-void TimerCB(int value);
-void KeyCB(unsigned char ch, int x, int y);
-auto lU = std::chrono::system_clock::now();
-
-void ReshapeCB(int x, int y) {
-
-
-
-	vec2 oldSc = scene.resolution;
-
-	scene.resolution = vec2(x, y);
-	cout << x << " : " << y << endl;
-	cout << oldSc.x << " : " << oldSc.y << endl;
-
-	aspectRatio = scene.resolution.x / scene.resolution.y;
-	scene.space *= scene.resolution / oldSc;
-	glutReshapeWindow(x, y);
-	glViewport(0, 0, x, y);
-}
-
-void VisualEngine::RegisterCallbacks() {
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glutIdleFunc(glutPostRedisplay);
-	glutDisplayFunc(RenderSceneCB);
-	glutPassiveMotionFunc(MouseCB);
-	glutMotionFunc(MouseCB2);
-	glutMouseFunc(MouseCB1);
-	glutIdleFunc(Idle);
-	glutReshapeFunc(ReshapeCB);
-	glutKeyboardFunc(KeyCB);
-}
 
 /////////////////////////////Callbacks/////////////////////////////
 
 void Idle() {
 
+	//Timestamp
 	auto now = std::chrono::system_clock::now();
-	ts = (now - lastUpdate);
+	timeStamp = (now - lastUpdate);
 	lastUpdate = std::chrono::system_clock::now();
 
-	if (flag) {
+	if (isSimulationRunning) {
 		for (int i = 0; i < scene.agents.size();i++) {
+
 			Agent* agent = &scene.agents[i];
 			vec3 acceleration = (massCenter - agent->getPosition());
-			float magnitude = sqrt(pow(acceleration.x,2) + pow(acceleration.y,2));
-			vec3 accUnit = acceleration / magnitude;
-			agent->setAcceleration(accUnit*1000.0f);
+			float aMagnitude = sqrt(pow(acceleration.x,2) + pow(acceleration.y,2));
+			vec3 accUnit = acceleration / aMagnitude;
+
+			agent->setAcceleration(accUnit*3000.0f);
+
 			doCollisionDetection(i);
+
 			float x = agent->getVelocity().x;
 			float y = agent->getVelocity().y;
 			float d = sqrt(pow(x, 2) + pow(y, 2));
+
 			if (abs(x) > 300.0f || abs(y) > 300.0f)
 				scene.agents[i].setVelocity(agent->getVelocity()*0.99f);
-			scene.agents[i].Update(ts.count());
+			scene.agents[i].Update(timeStamp.count());
 		}
 	}
 		glutPostRedisplay();
-	
 }
 
 void RenderSceneCB() {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	for (int i = 0; i < scene.agents.size();i++) {
-		scene.agents[i].Draw(shader, scene.resolution, scene.space, cam);
+		scene.agents[i].Draw(shader, scene.resolution, scene.space, scene.cam);
 	}
-	//std::cout << scene.agents[0].getPosition().x << " " << scene.agents[0].getPosition().y << std::endl;
-	
+
 	glutSwapBuffers();
 }
 
+void ReshapeCB(int x, int y) {
+
+	vec2 oldSceneResolution = scene.resolution;
+	scene.resolution = vec2(x, y);
+	scene.aspectRatio = scene.resolution.x / scene.resolution.y;
+	scene.space *= scene.resolution / oldSceneResolution;
+
+	glutReshapeWindow(x, y);
+	glViewport(0, 0, x, y);
+}
+
 void KeyCB(unsigned char ch, int x, int y) {
+
 	if (ch == 'p') {
-		flag = !flag;
+		isSimulationRunning = !isSimulationRunning;
 	}
 }
 
-void MouseCB(int x, int y) {
-	scene.mousePos = center+vec3((x-scene.resolution.x/2)*scene.space.x/scene.resolution.x, ( - y + scene.resolution.y / 2)*scene.space.y/scene.resolution.y,0.0f);
-	//std::cout << scene.mousePos.x << ":" << scene.mousePos.y << endl;
+void MousePassiveMotionCB(int x, int y) {
+	scene.mousePos = scene.cam + pointInSpace(scene.resolution, scene.space);
 }
 
-void MouseCB1(int b, int s, int x, int y) {
-	if (b == GLUT_MIDDLE_BUTTON) {
-		center = vec3(0.0f);
-		cam = center;
+void MouseButtonPressedCB(int button, int status, int x, int y) {
+
+	switch (button) {
+	case GLUT_MIDDLE_BUTTON:
+		scene.cam = vec3(0.0f);
 		massCenter = vec3(0.0f);
-		mdlprsd = !mdlprsd;
-	}
-	else
-		if (b == 3) {
-			if (scene.space.x > 100.0f && scene.space.y > 100.0f) {
-				scene.space.x -= 100.0f*aspectRatio;
-				scene.space.y -= 100.0f;
-			}
+		middleButtonPressed = !middleButtonPressed;
+		break;
+	case GLUT_ROLL_FORWARD:
+		if (scene.space.x > 100.0f && scene.space.y > 100.0f) {
+			scene.space.x -= 100.0f * scene.aspectRatio;
+			scene.space.y -= 100.0f;
 		}
-		else
-			if (b == 4) {
-				scene.space.x += 100.0f*aspectRatio;
-				scene.space.y += 100.0f;
-			}
-			else
-				if (b == GLUT_LEFT_BUTTON && s == GLUT_DOWN) {
-					prsd = true;
-					massCenter = scene.mousePos;
-				} else
-					if (b == GLUT_LEFT_BUTTON && s == GLUT_UP) {
-						prsd = false;
-					}
-				if (s == GLUT_DOWN && b != GLUT_LEFT_BUTTON) {
-					center1 = center+ vec3((x - scene.resolution.x / 2) * scene.space.x / scene.resolution.x, (-y + scene.resolution.y / 2) * scene.space.y / scene.resolution.y,0.0f);
-				}
-				if (s == GLUT_UP != GLUT_LEFT_BUTTON)
-					center = cam;
-	//std::cout << cam.x << endl;
-	
-}
-std::chrono::duration<double> a;
-
-void TimerCB(int value) {
-	auto noww = std::chrono::system_clock::now();
-	a = noww - lU;
-	cout << a.count() << endl;
-	cout << "Pos: " << scene.agents[0].getPosition().x << endl;
-	cout << "Vel: " << scene.agents[0].getVelocity().x << endl;
-	cout << "Acc: " << scene.agents[0].getAcceleration().x << endl;
-	flag = !flag;
-}
-
-void MouseCB2(int x, int y) {
-	if (!prsd && !mdlprsd) {
-		center2 = vec3((x - scene.resolution.x / 2) * scene.space.x / scene.resolution.x, (-y + scene.resolution.y / 2) * scene.space.y / scene.resolution.y,0.0f);
-		cam = center1 - center2;
+		break;
+	case GLUT_ROLL_BACKWARD:
+		scene.space.x += 100.0f * scene.aspectRatio;
+		scene.space.y += 100.0f;
+		break;
+	case GLUT_LEFT_BUTTON:
+		if (status == GLUT_DOWN) {
+			rightButtonPressed = true;
+			massCenter = scene.mousePos;
+		}
+		else {
+			rightButtonPressed = false;
+		}
+		break;
+	case GLUT_RIGHT_BUTTON:
+		if (status == GLUT_DOWN)
+			scene.mousePos = scene.cam + pointInSpace(scene.resolution, scene.space);
+		break;
 	}
-	else if (!mdlprsd) {
-		massCenter = center + vec3((x - scene.resolution.x / 2) * scene.space.x / scene.resolution.x, (-y + scene.resolution.y / 2) * scene.space.y / scene.resolution.y,0.0f);
+}
+
+void MousePressedMotionCB(int x, int y) {
+	if (!rightButtonPressed && !middleButtonPressed) {
+		scene.cam = scene.mousePos - pointInSpace(scene.resolution, scene.space);
+	}
+	else {
+		massCenter = scene.cam + pointInSpace(scene.resolution, scene.space);
 	}
 }
