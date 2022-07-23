@@ -108,7 +108,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>..\..\release\$(Platform)\$(Configuration)</OutDir>
+    <OutDir>..\..\release\$(Platform)\$(Configuration)\</OutDir>
     <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
     <CopyLocalDebugSymbols>false</CopyLocalDebugSymbols>
     <CopyLocalProjectReference>false</CopyLocalProjectReference>
@@ -216,21 +216,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="agent.cpp" />
+    <ClCompile Include="core_object.cpp" />
+    <ClCompile Include="game_object.cpp" />
+    <ClCompile Include="physics_component.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="render_component.cpp" />
     <ClCompile Include="scene.h" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="simple_model.cpp" />
     <ClCompile Include="tim_utils.cpp" />
     <ClCompile Include="visual_engine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="collider_component.h" />
+    <ClInclude Include="component.h" />
+    <ClInclude Include="core_object.h" />
+    <ClInclude Include="enum.h" />
     <ClInclude Include="include\glut_backend.h" />
-    <ClInclude Include="agent.h" />
+    <ClInclude Include="game_object.h" />
+    <ClInclude Include="physics_component.h" />
+    <ClInclude Include="object_manager.h" />
+    <ClInclude Include="render_component.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shader_manager.h" />
+    <ClInclude Include="simple_model.h" />
     <ClInclude Include="tim_utils.h" />
+    <ClInclude Include="VAOmanager.h" />
     <ClInclude Include="visual_engine.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ball.fs" />
+    <None Include="light.fs" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
   </ItemGroup>

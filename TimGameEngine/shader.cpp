@@ -1,11 +1,14 @@
 #include "shader.h"
+#include "glm/vec3.hpp"
+#include "glm/mat4x4.hpp"
 #include "glew.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace glm;
+using namespace std;
+
 
 Shader::Shader() {}
 

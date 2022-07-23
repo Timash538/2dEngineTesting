@@ -11,10 +11,8 @@ out vec4 FragColor;
 
 void main() {
     
-    /*FragColor = (distance(FragPos,Pos)<Size) ? vec4(SelfColor,1.0f) : vec4(0.0f);
+    FragColor = (distance(FragPos,Pos)<Size) ? vec4(1.0f) : vec4(0.0f);
     if (FragColor.a == 0.0f) {
     discard;
-    }*/
-
-    FragColor = vec4(1.0f,1.0f,1.0f,1.0f);
+    }
 }

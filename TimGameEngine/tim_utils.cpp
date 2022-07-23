@@ -2,8 +2,8 @@
 #include "glm/mat4x4.hpp"
 #include "glm/gtx/transform.hpp"
 #include <fstream>
-using namespace std;
-using namespace glm;
+
+
 bool ReadFile(const char* FileName, string& outFile) {
 	ifstream f(FileName);
 	
@@ -27,4 +27,12 @@ float RandomFloat(float min, float max)
 {
 	float r = (float)rand() / (float)RAND_MAX;
 	return min + r * (max - min);
+}
+
+float getMagnitude(vec2& start, vec2& end) {
+	return (float)sqrt(pow(start.x + end.x, 2) + pow(start.y + end.y, 2));
+}
+
+void showVec(vec3 v) {
+	cout << "x: " << v.x << " y: " << v.y << " z: " << v.z << endl;
 }
